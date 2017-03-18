@@ -1,6 +1,6 @@
 
 
-service: guestbook-serverless-demo
+service: guestbook-serverless-demo-adam
 
 provider:
   name: aws
@@ -9,5 +9,49 @@ provider:
 functions:
   hello:
     handler: handler.hello
-    http: GET hello
+  store-message:
+    handler: store-message.storeMessage
+    events:
+      - http:
+          path: storeMessage
+          method: post
+          integration: lambda
+  get-messages:
+    handler: get-messages.getMessages
+    events:
+      - http:
+          path: getMessages
+          method: get
+          integration: lambda
 
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: messages
+        AttributeDefinitions:
+          - AttributeName: msg_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: msg_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+    DynamoDBIamPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: DynamoDbTable
+      Properties:
+        PolicyName: lambda-dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Scan
+              Resource: arn:aws:dynamodb:*:*:table/messages
+        Roles:
+          - Ref: IamRoleLambdaExecution
