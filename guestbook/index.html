@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- [START css] -->
+    <link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css">
+    <!-- [END css] -->
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+      blockquote {
+        margin-bottom: 10px;
+        border-left-color: #bbb;
+      }
+      form {
+        margin-top: 10px;
+      }
+      .form-signin input[type="text"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .row {
+        margin-left: 0px;
+        margin-top: 10px;
+        overflow: scroll;
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Serverless Guestbook</a>
+          <div class="nav-collapse collapse pull-right">
+            <a href="{{ url|safe }}" class="btn">Admin</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+          <b>
+          </b> Previous entries:
+        <blockquote>None</blockquote>
+      </div>
+
+      <form id="guestForm" action="https://m86akw3u3c.execute-api.eu-west-1.amazonaws.com/prod/spam" method="post">
+        <div><label for="user">User:</label><input id="user" value="" name="User"></div>
+        <div><label for="message">Message</label><textarea id="message" name="content" class="input-block-level" rows="3"></textarea></div>
+        <div><input type="submit" class="btn btn-large btn-primary" value="Sign Guestbook"></div>
+      </form>
+      <input id="test" type="button" value="Spam Check" onclick="checkSpam();" /> 
+      <hr>
+      <a href="{{ url|safe }}">link?</a>
+    </div>
+  </body>
+  <script type="text/javascript">
+    $("#guestForm").submit(function(event) {
+        event.preventDefault();
+        var $form = $( this ),
+            url = $form.attr( 'action' );
+
+        console.log(JSON.stringify({ payload: $('#message').val(), account: $('#user').val(), tier: 1}));
+        $.ajax({
+          type: "POST",
+          url: url,
+          // The key needs to match your method's input parameter (case-sensitive).
+          data: JSON.stringify({ payload: $('#message').val(), account: $('#user').val(), tier: 1}),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){alert(data);},
+          failure: function(errMsg) {
+              alert(errMsg);
+          }
+        });
+        // var posting = $.post(url, JSON.stringify({ payload: $('#message').val(), account: $('#user').val(), tier: 1}));
+        // posting.done(function(data)) {
+        //   alert('success? '.concat(data));
+        // }
+    });
+
+    function checkSpam() {
+        $.ajax({
+          type: "POST",
+          url: url,
+          // The key needs to match your method's input parameter (case-sensitive).
+          data: JSON.stringify({ payload: "test data", account: "user", tier: 1}),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){alert(data);},
+          failure: function(errMsg) {
+              alert(errMsg);
+          }
+        });
+    }
+
+  </script>
+</html>
